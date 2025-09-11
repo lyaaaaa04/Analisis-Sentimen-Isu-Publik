@@ -68,9 +68,18 @@ body, div, p, span, label {
 }
 @keyframes float {to{transform:translate(50px,50px);}}
 
-/* Judul hero */
-.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;color: #ffffff !important;}
-.hero p {font-size: 1.4rem;opacity: 0.95;color: #f0f0f0 !important;}
+/* Judul hero & paragraf selalu putih */
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight:700;
+  margin-bottom: 15px;
+  color: #ffffff !important;
+}
+.hero p {
+  font-size: 1.4rem;
+  opacity: 0.95;
+  color: #ffffff !important;
+}
 
 /* Textarea */
 .stTextArea textarea {
@@ -79,8 +88,8 @@ body, div, p, span, label {
   padding:1rem;
   font-family:'Poppins',sans-serif;
   font-size: 1rem !important;
-  background-color: var(--background-color) !important;
-  color: var(--text-color) !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
@@ -109,8 +118,8 @@ body, div, p, span, label {
   text-align: center;
   font-size: 1.2rem !important;
   animation: fadeInUp 0.8s ease-in-out;
-  background: var(--background-color);
-  color: var(--text-color);
+  background: #ffffff;
+  color: #000000;
   box-shadow:0 8px 20px rgba(0,0,0,0.1);
   border-top:6px solid #2a5298;
 }
@@ -167,7 +176,10 @@ body, div, p, span, label {
   margin-top:30px;
 }
 
-@keyframes fadeInUp {from {opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInUp {
+  from {opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -200,14 +212,12 @@ if st.button("🔍 Analisis Sentimen"):
         feature_names = np.array(vectorizer.get_feature_names_out())
         tfidf_scores = X.toarray()[0]
 
-        # Ambil kata bobot tertinggi
         top_word = None
         if tfidf_scores.sum() > 0:
             idx_max = tfidf_scores.argmax()
             if tfidf_scores[idx_max] > 0:
                 top_word = feature_names[idx_max]
 
-        # Card hasil
         html_card = f"""
         <div class="sentiment-card {css_class}">
             <div class="icon-badge">{emoji}</div>
@@ -220,7 +230,6 @@ if st.button("🔍 Analisis Sentimen"):
 
         st.markdown(html_card, unsafe_allow_html=True)
 
-        # ========== Daftar Kata ==========
         sorted_idx = np.argsort(tfidf_scores)[::-1][:5]
         if tfidf_scores.sum() > 0:
             st.markdown('<div class="daftar-kata-title">📚 Daftar Kata</div>', unsafe_allow_html=True)
@@ -233,9 +242,4 @@ if st.button("🔍 Analisis Sentimen"):
         else:
             st.info("Tidak ada kata yang terdeteksi.")
 
-        # Fun fact dengan margin atas
         st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
-
-
-
-
