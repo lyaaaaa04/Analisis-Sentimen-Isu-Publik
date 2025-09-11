@@ -1,8 +1,6 @@
 import os
 import streamlit as st
-import joblib
-import json 
-import re
+import joblib, json, re
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import numpy as np
@@ -68,18 +66,9 @@ body, div, p, span, label {
 }
 @keyframes float {to{transform:translate(50px,50px);}}
 
-/* Judul hero & paragraf selalu putih */
-.hero h1 {
-  font-size: 2.5rem;
-  font-weight:700;
-  margin-bottom: 15px;
-  color: #ffffff !important;
-}
-.hero p {
-  font-size: 1.4rem;
-  opacity: 0.95;
-  color: #ffffff !important;
-}
+/* Judul hero */
+.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;color: #ffffff;}
+.hero p {font-size: 1.4rem;opacity: 0.95;}
 
 /* Textarea */
 .stTextArea textarea {
@@ -88,8 +77,8 @@ body, div, p, span, label {
   padding:1rem;
   font-family:'Poppins',sans-serif;
   font-size: 1rem !important;
-  background-color: #ffffff !important;
-  color: #000000 !important;
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
@@ -118,8 +107,8 @@ body, div, p, span, label {
   text-align: center;
   font-size: 1.2rem !important;
   animation: fadeInUp 0.8s ease-in-out;
-  background: #ffffff;
-  color: #000000;
+  background: var(--background-color);
+  color: var(--text-color);
   box-shadow:0 8px 20px rgba(0,0,0,0.1);
   border-top:6px solid #2a5298;
 }
@@ -175,92 +164,71 @@ body, div, p, span, label {
 .funfact {
   margin-top:30px;
 }
-
-@keyframes fadeInUp {
-  from {opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
+@keyframes fadeInUp {from {opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 </style>
 """, unsafe_allow_html=True)
 
-# ========== Sidebar ==========
-st.sidebar.title("📑 Navigasi")
-page = st.sidebar.radio(
-    "Pilih Halaman:",
-    ["🏠 Home", "🔍 Analisis", "📊 Hasil Klasifikasi"]
+# ========== UI ==========
+st.markdown(
+    '<div class="hero"><h1>📈 Analisis Sentimen Isu Publik</h1><p>Masukkan kalimat untuk mengetahui sentimennya secara otomatis!</p></div>',
+    unsafe_allow_html=True
 )
 
-# ========== Halaman Home ==========
-if page == "🏠 Home":
-    st.markdown(
-        '<div class="hero"><h1>📈 Analisis Sentimen Isu Publik</h1><p>Selamat datang! Gunakan aplikasi ini untuk menganalisis sentimen teks secara otomatis.</p></div>',
-        unsafe_allow_html=True
-    )
-    st.write("✨ Aplikasi ini memanfaatkan Machine Learning untuk mendeteksi apakah suatu kalimat bernuansa **positif** atau **negatif**.")
+user_input = st.text_area("💬 Masukkan teks Anda di sini", "")
 
-# ========== Halaman Analisis ==========
-elif page == "🔍 Analisis":
-    st.markdown('<h2>🔍 Analisis Sentimen</h2>', unsafe_allow_html=True)
-    user_input = st.text_area("💬 Masukkan teks Anda di sini", "")
-
-    if st.button("Analisis Sentimen"):
-        if not user_input.strip():
-            st.warning("⚠️ Silakan masukkan teks terlebih dahulu.")
-        else:
-            processed = preprocess_text(user_input)
-            X = vectorizer.transform([processed])
-            probs = model.predict_proba(X)[0]
-
-            if probs[1] >= probs[0]:
-                label_text = "Positif"
-                emoji = "😊"
-                css_class = "positive"
-            else:
-                label_text = "Negatif"
-                emoji = "😠"
-                css_class = "negative"
-
-            feature_names = np.array(vectorizer.get_feature_names_out())
-            tfidf_scores = X.toarray()[0]
-
-            # tampilkan kartu hasil
-            html_card = f"""
-            <div class="sentiment-card {css_class}">
-                <div class="icon-badge">{emoji}</div>
-                <p class="sent-title">Sentimen Terdeteksi</p>
-                <p class="sent-value {css_class}">{label_text}</p>
-            </div>
-            """
-            st.markdown(html_card, unsafe_allow_html=True)
-
-            # tampilkan daftar kata penting
-            sorted_idx = np.argsort(tfidf_scores)[::-1][:5]
-            if tfidf_scores.sum() > 0:
-                st.markdown('<div class="daftar-kata-title">📚 Daftar Kata</div>', unsafe_allow_html=True)
-                chips_html = "<div class='chips-container'>"
-                for idx in sorted_idx:
-                    if tfidf_scores[idx] > 0:
-                        chips_html += f"<div class='chip'>{feature_names[idx]} ({tfidf_scores[idx]:.3f})</div>"
-                chips_html += "</div>"
-                st.markdown(chips_html, unsafe_allow_html=True)
-
-            # simpan hasil analisis terakhir
-            st.session_state["last_result"] = {
-                "text": user_input,
-                "processed": processed,
-                "sentimen": label_text,
-                "proba": probs.tolist()
-            }
-
-# ========== Halaman Hasil Klasifikasi ==========
-elif page == "📊 Hasil Klasifikasi":
-    st.markdown('<h2>📊 Hasil Klasifikasi Model</h2>', unsafe_allow_html=True)
-
-    if "last_result" not in st.session_state:
-        st.info("Belum ada analisis yang dilakukan. Silakan masuk ke menu **Analisis** terlebih dahulu.")
+# ========== Hasil Analisis Sentimen ==========
+if st.button("🔍 Analisis Sentimen"):
+    if not user_input.strip():
+        st.warning("⚠️ Silakan masukkan teks terlebih dahulu.")
     else:
-        result = st.session_state["last_result"]
-        st.write("**Teks Asli:**", result["text"])
-        st.write("**Teks Setelah Preprocessing:**", result["processed"])
-        st.write("**Sentimen Terdeteksi:**", result["sentimen"])
-        st.write("**Probabilitas Klasifikasi:**", result["proba"])
+        processed = preprocess_text(user_input)
+        X = vectorizer.transform([processed])
+        probs = model.predict_proba(X)[0]
+
+        if probs[1] >= probs[0]:
+            label_text = "Positif"
+            emoji = "😊"
+            css_class = "positive"
+        else:
+            label_text = "Negatif"
+            emoji = "😠"
+            css_class = "negative"
+
+        feature_names = np.array(vectorizer.get_feature_names_out())
+        tfidf_scores = X.toarray()[0]
+
+        # Ambil kata bobot tertinggi
+        top_word = None
+        if tfidf_scores.sum() > 0:
+            idx_max = tfidf_scores.argmax()
+            if tfidf_scores[idx_max] > 0:
+                top_word = feature_names[idx_max]
+
+        # Card hasil
+        html_card = f"""
+        <div class="sentiment-card {css_class}">
+            <div class="icon-badge">{emoji}</div>
+            <p class="sent-title">Sentimen Terdeteksi</p>
+            <p class="sent-value {css_class}">{label_text}</p>
+        """
+        if top_word:
+            html_card += f"""<div class="chip">Kata Kunci: {top_word}</div>"""
+        html_card += "</div>"
+
+        st.markdown(html_card, unsafe_allow_html=True)
+
+        # ========== Daftar Kata ==========
+        sorted_idx = np.argsort(tfidf_scores)[::-1][:5]
+        if tfidf_scores.sum() > 0:
+            st.markdown('<div class="daftar-kata-title">📚 Daftar Kata</div>', unsafe_allow_html=True)
+            chips_html = "<div class='chips-container'>"
+            for idx in sorted_idx:
+                if tfidf_scores[idx] > 0:
+                    chips_html += f"<div class='chip'>{feature_names[idx]} ({tfidf_scores[idx]:.3f})</div>"
+            chips_html += "</div>"
+            st.markdown(chips_html, unsafe_allow_html=True)
+        else:
+            st.info("Tidak ada kata yang terdeteksi.")
+
+        # Fun fact dengan margin atas
+        st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
