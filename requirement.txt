@@ -1,8 +1,8 @@
-pandas==2.2.3
-numpy==2.1.2
-scipy==1.14.1
 streamlit
 streamlit-option-menu
 scikit-learn
 joblib
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.14.1
 Sastrawi
