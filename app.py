@@ -69,7 +69,7 @@ body, div, p, span, label {
 @keyframes float {to{transform:translate(50px,50px);}}
 
 /* Judul hero */
-.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;}
+.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;color: #ffffff;}
 .hero p {font-size: 1.4rem;opacity: 0.95;}
 
 /* Textarea */
@@ -234,4 +234,5 @@ if st.button("🔍 Analisis Sentimen"):
 
         # Fun fact dengan margin atas
         st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
+
 
