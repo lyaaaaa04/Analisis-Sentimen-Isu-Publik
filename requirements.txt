@@ -1,12 +1,12 @@
 pip==25.2
-streamlit==1.38.0
-streamlit-option-menu==0.3.12
-scikit-learn==1.5.2
+streamlit==1.39.0
 joblib==1.4.2
-pandas==2.2.3
-numpy==1.26.4
-scipy==1.14.1
+numpy==2.3.3
+pandas==2.3.2
 Sastrawi==1.0.1
+scikit-learn==1.5.2
+
+
 
 
 
