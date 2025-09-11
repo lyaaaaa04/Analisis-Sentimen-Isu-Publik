@@ -69,8 +69,8 @@ body, div, p, span, label {
 @keyframes float {to{transform:translate(50px,50px);}}
 
 /* Judul hero */
-.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;color: #ffffff;}
-.hero p {font-size: 1.4rem;opacity: 0.95;}
+.hero h1 {font-size: 2.5rem;font-weight:700;margin-bottom: 15px;color: #ffffff !important;}
+.hero p {font-size: 1.4rem;opacity: 0.95;color: #f0f0f0 !important;}
 
 /* Textarea */
 .stTextArea textarea {
@@ -167,16 +167,6 @@ body, div, p, span, label {
   margin-top:30px;
 }
 
-.hero h1, .hero p {
-  color: #1e1e1e; /* default gelap (light mode) */
-}
-
-@media (prefers-color-scheme: dark) {
-  .hero h1, .hero p {
-    color: #ffffff; /* jadi putih saat dark mode */
-  }
-}
-
 @keyframes fadeInUp {from {opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 </style>
 """, unsafe_allow_html=True)
@@ -245,6 +235,7 @@ if st.button("🔍 Analisis Sentimen"):
 
         # Fun fact dengan margin atas
         st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
+
 
 
 
