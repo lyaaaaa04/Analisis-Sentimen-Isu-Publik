@@ -209,8 +209,11 @@ elif page == "📑 Dokumentasi":
     # jadikan DataFrame (label di index)
     df = pd.DataFrame(report_dict).T  
     
-    # opsional: ubah angka jadi 2 decimal
+    # format angka ke 2 decimal, biarkan NaN tetap NaN
     df = df.applymap(lambda x: round(x, 2) if isinstance(x, (int, float)) else x)
+    
+    # ganti NaN dengan string kosong untuk tampilan
+    df = df.fillna("")
     
     st.write("### Hasil Evaluasi Model Terbaik")
     st.table(df)
@@ -232,6 +235,7 @@ elif page == "📑 Dokumentasi":
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
 
 
 
