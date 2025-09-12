@@ -200,20 +200,19 @@ elif page == "📑 Dokumentasi":
     report_dict = {
         'negatif':   {'precision':0.88,'recall':0.96,'f1-score':0.92,'support':127},
         'positif':   {'precision':0.96,'recall':0.87,'f1-score':0.91,'support':127},
-        # di sini 'accuracy' hanya punya nilai f1-score → buat NaN untuk precision & recall
+        # accuracy hanya punya f1-score → precision & recall None
         'accuracy':  {'precision':None,'recall':None,'f1-score':0.92,'support':254},
         'macro avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254},
         'weighted avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254}
     }
     
-    # jadikan DataFrame (label di index)
     df = pd.DataFrame(report_dict).T  
     
-    # format angka ke 2 decimal, biarkan NaN tetap NaN
-    df = df.applymap(lambda x: round(x, 2) if isinstance(x, (int, float)) else x)
-    
-    # ganti NaN dengan string kosong untuk tampilan
     df = df.fillna("")
+    
+    for col in ['precision', 'recall', 'f1-score']:
+        df[col] = df[col].apply(lambda x: f"{float(x):.2f}" if x != "" else "")
+    df['support'] = df['support'].apply(lambda x: f"{int(x)}" if x != "" else "")
     
     st.write("### Hasil Evaluasi Model Terbaik")
     st.table(df)
@@ -235,6 +234,7 @@ elif page == "📑 Dokumentasi":
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
 
 
 
