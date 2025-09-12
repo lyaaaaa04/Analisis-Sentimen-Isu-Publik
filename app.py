@@ -200,12 +200,18 @@ elif page == "📑 Dokumentasi":
     report_dict = {
         'negatif':   {'precision':0.88,'recall':0.96,'f1-score':0.92,'support':127},
         'positif':   {'precision':0.96,'recall':0.87,'f1-score':0.91,'support':127},
-        'accuracy':  {'precision':'','recall':'','f1-score':0.92,'support':254},
+        # di sini 'accuracy' hanya punya nilai f1-score → buat NaN untuk precision & recall
+        'accuracy':  {'precision':None,'recall':None,'f1-score':0.92,'support':254},
         'macro avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254},
         'weighted avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254}
     }
     
-    df = pd.DataFrame(report_dict).T  # transpose supaya label di index
+    # jadikan DataFrame (label di index)
+    df = pd.DataFrame(report_dict).T  
+    
+    # opsional: ubah angka jadi 2 decimal
+    df = df.applymap(lambda x: round(x, 2) if isinstance(x, (int, float)) else x)
+    
     st.write("### Hasil Evaluasi Model Terbaik")
     st.table(df)
 
@@ -226,6 +232,7 @@ elif page == "📑 Dokumentasi":
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
 
 
 
