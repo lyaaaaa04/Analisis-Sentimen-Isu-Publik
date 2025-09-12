@@ -198,7 +198,7 @@ elif page == "📑 Dokumentasi":
 
     st.markdown("### Hasil Evaluasi Model Terbaik")
     st.code("""
-                    precision  recall  f1-score   support
+                                            precision  recall  f1-score   support
 negatif       0.88      0.96      0.92       127
 positif       0.96      0.87      0.91       127
 
@@ -224,3 +224,4 @@ weighted avg  0.92      0.92      0.92       254
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
