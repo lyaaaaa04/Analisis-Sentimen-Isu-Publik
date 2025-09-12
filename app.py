@@ -5,6 +5,7 @@ from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFacto
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import numpy as np
 from PIL import Image  # Tambahan untuk menampilkan gambar
+import pandas as pd
 
 # ===================== Streamlit Config =====================
 st.set_page_config(
@@ -196,17 +197,17 @@ elif page == "📑 Dokumentasi":
 8. Visualisasi: wordcloud, distribusi label.
 """)
 
-    st.markdown("### Hasil Evaluasi Model Terbaik")
-    report = """
-                  precision    recall  f1-score   support
-    negatif       0.88        0.96     0.92       127
-    positif       0.96        0.87     0.91       127
+    report_dict = {
+        'negatif':   {'precision':0.88,'recall':0.96,'f1-score':0.92,'support':127},
+        'positif':   {'precision':0.96,'recall':0.87,'f1-score':0.91,'support':127},
+        'accuracy':  {'precision':'','recall':'','f1-score':0.92,'support':254},
+        'macro avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254},
+        'weighted avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254}
+    }
     
-    accuracy                           0.92       254
-    macro avg     0.92        0.92     0.92       254
-    weighted avg  0.92        0.92     0.92       254
-    """
-    st.text(report)
+    df = pd.DataFrame(report_dict).T  # transpose supaya label di index
+    st.write("### Hasil Evaluasi Model Terbaik")
+    st.table(df)
 
     example_images = [
         ("Confusion Matrix", "confusion_matrix.png"),
@@ -225,5 +226,6 @@ elif page == "📑 Dokumentasi":
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
 
 
