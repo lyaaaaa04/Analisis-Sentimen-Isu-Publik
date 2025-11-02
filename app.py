@@ -1,11 +1,11 @@
 import os
+import pandas as pd 
 import streamlit as st
 import joblib, json, re
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import numpy as np
 from PIL import Image  # Tambahan untuk menampilkan gambar
-import pandas as pd
 
 # ===================== Streamlit Config =====================
 st.set_page_config(
@@ -124,63 +124,113 @@ if page == "🏠 Home":
     st.success("💡 Tips: Masukkan komentar, tweet, atau opini publik untuk melihat hasilnya.")
 
 # ===================== Halaman Analisis =====================
-elif page == "📊 Analisis":
+if page == "📊 Analisis":
     st.markdown(
-        '<div class="hero"><h1>📈 Analisis Sentimen Isu Publik</h1><p>Masukkan kalimat untuk mengetahui sentimennya secara otomatis!</p></div>',
+        '<div class="hero"><h1>📈 Analisis Sentimen Isu Publik</h1><p>Masukkan teks atau unggah file CSV/Excel untuk menganalisis sentimen secara otomatis!</p></div>',
         unsafe_allow_html=True
     )
-    user_input = st.text_area("💬 Masukkan teks Anda di sini", "")
-    if st.button("Analisis Sentimen"):
-        if not user_input.strip():
-            st.warning("⚠️ Silakan masukkan teks terlebih dahulu.")
-        else:
-            processed = preprocess_text(user_input)
-            X = vectorizer.transform([processed])
-            probs = model.predict_proba(X)[0]
 
-            if probs[1] >= probs[0]:
-                label_text = "Positif"
-                emoji = "😊"
-                css_class = "positive"
+    # Pilihan metode input
+    option = st.radio("Pilih metode input:", [" Teks Manual", " Upload File (CSV/Excel)"], horizontal=True)
+
+    if option == " Teks Manual":
+        # --- Input teks seperti sebelumnya ---
+        user_input = st.text_area("Masukkan teks Anda di sini", "")
+        if st.button("Analisis Sentimen"):
+            if not user_input.strip():
+                st.warning("⚠️ Silakan masukkan teks terlebih dahulu.")
             else:
-                label_text = "Negatif"
-                emoji = "😠"
-                css_class = "negative"
+                processed = preprocess_text(user_input)
+                X = vectorizer.transform([processed])
+                probs = model.predict_proba(X)[0]
 
-            feature_names = np.array(vectorizer.get_feature_names_out())
-            tfidf_scores = X.toarray()[0]
+                if probs[1] >= probs[0]:
+                    label_text = "Positif"
+                    emoji = "😊"
+                    css_class = "positive"
+                else:
+                    label_text = "Negatif"
+                    emoji = "😠"
+                    css_class = "negative"
 
-            top_word = None
-            if tfidf_scores.sum() > 0:
-                idx_max = tfidf_scores.argmax()
-                if tfidf_scores[idx_max] > 0:
-                    top_word = feature_names[idx_max]
+                feature_names = np.array(vectorizer.get_feature_names_out())
+                tfidf_scores = X.toarray()[0]
 
-            html_card = f"""
-            <div class="sentiment-card {css_class}">
-                <div class="icon-badge">{emoji}</div>
-                <p class="sent-title">Sentimen Terdeteksi</p>
-                <p class="sent-value {css_class}">{label_text}</p>
-            """
-            if top_word:
-                html_card += f"""<div class='chip'>Kata Kunci: {top_word}</div>"""
-            html_card += "</div>"
+                top_word = None
+                if tfidf_scores.sum() > 0:
+                    idx_max = tfidf_scores.argmax()
+                    if tfidf_scores[idx_max] > 0:
+                        top_word = feature_names[idx_max]
 
-            st.markdown(html_card, unsafe_allow_html=True)
+                html_card = f"""
+                <div class="sentiment-card {css_class}">
+                    <div class="icon-badge">{emoji}</div>
+                    <p class="sent-title">Sentimen Terdeteksi</p>
+                    <p class="sent-value {css_class}">{label_text}</p>
+                """
+                if top_word:
+                    html_card += f"""<div class='chip'>Kata Kunci: {top_word}</div>"""
+                html_card += "</div>"
 
-            sorted_idx = np.argsort(tfidf_scores)[::-1][:5]
-            if tfidf_scores.sum() > 0:
-                st.markdown('<div class="daftar-kata-title">📚 Daftar Kata</div>', unsafe_allow_html=True)
-                chips_html = "<div class='chips-container'>"
-                for idx in sorted_idx:
-                    if tfidf_scores[idx] > 0:
-                        chips_html += f"<div class='chip'>{feature_names[idx]} ({tfidf_scores[idx]:.3f})</div>"
-                chips_html += "</div>"
-                st.markdown(chips_html, unsafe_allow_html=True)
-            else:
-                st.info("Tidak ada kata yang terdeteksi.")
+                st.markdown(html_card, unsafe_allow_html=True)
 
-            st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
+                sorted_idx = np.argsort(tfidf_scores)[::-1][:5]
+                if tfidf_scores.sum() > 0:
+                    st.markdown('<div class="daftar-kata-title">📚 Daftar Kata</div>', unsafe_allow_html=True)
+                    chips_html = "<div class='chips-container'>"
+                    for idx in sorted_idx:
+                        if tfidf_scores[idx] > 0:
+                            chips_html += f"<div class='chip'>{feature_names[idx]} ({tfidf_scores[idx]:.3f})</div>"
+                    chips_html += "</div>"
+                    st.markdown(chips_html, unsafe_allow_html=True)
+                else:
+                    st.info("Tidak ada kata yang terdeteksi.")
+
+                st.markdown('<div class="funfact">💡 <i>Fun fact:</i> Analisis sentimen ini bisa membantu anda membaca hati dan pikiran secara otomatis.</div>', unsafe_allow_html=True)
+
+    else:
+        # --- Input file CSV/Excel ---
+        uploaded_file = st.file_uploader("Unggah file CSV atau Excel yang berisi komentar", type=["csv", "xlsx"])
+
+        if uploaded_file is not None:
+            try:
+                # Baca file sesuai format
+                if uploaded_file.name.endswith('.csv'):
+                    df = pd.read_csv(uploaded_file)
+                else:
+                    df = pd.read_excel(uploaded_file)
+
+                st.write("## 📄 Preview Data:")
+                st.dataframe(df.head())
+
+                # Asumsi kolom teks bernama “komentar” (bisa diubah)
+                text_col = st.selectbox("Pilih kolom yang berisi teks komentar:", df.columns)
+
+                if st.button("Analisis File"):
+                    with st.spinner("Sedang menganalisis sentimen... ⏳"):
+                        df['preprocessed'] = df[text_col].apply(preprocess_text)
+                        X = vectorizer.transform(df['preprocessed'])
+                        probs = model.predict_proba(X)
+
+                        df['sentimen'] = np.where(probs[:, 1] >= probs[:, 0], 'Positif', 'Negatif')
+                        st.success("✅ Analisis selesai!")
+
+                        # Tampilkan hasil
+                        st.write("## 📊 Hasil Analisis Sentimen")
+                        st.dataframe(df[[text_col, 'sentimen']])
+
+                        # Unduh hasil
+                        csv = df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="Unduh Hasil Analisis (CSV)",
+                            data=csv,
+                            file_name="hasil_analisis_sentimen.csv",
+                            mime="text/csv"
+                        )
+
+            except Exception as e:
+                st.error(f"Terjadi kesalahan saat memproses file: {e}")
+
 
 # ===================== Halaman Dokumentasi =====================
 elif page == "📑 Dokumentasi":
@@ -197,25 +247,16 @@ elif page == "📑 Dokumentasi":
 8. Visualisasi: wordcloud, distribusi label.
 """)
 
-    report_dict = {
-        'negatif':   {'precision':0.88,'recall':0.96,'f1-score':0.92,'support':127},
-        'positif':   {'precision':0.96,'recall':0.87,'f1-score':0.91,'support':127},
-        # accuracy hanya punya f1-score → precision & recall None
-        'accuracy':  {'precision':None,'recall':None,'f1-score':0.92,'support':254},
-        'macro avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254},
-        'weighted avg': {'precision':0.92,'recall':0.92,'f1-score':0.92,'support':254}
-    }
-    
-    df = pd.DataFrame(report_dict).T  
-    
-    df = df.fillna("")
-    
-    for col in ['precision', 'recall', 'f1-score']:
-        df[col] = df[col].apply(lambda x: f"{float(x):.2f}" if x != "" else "")
-    df['support'] = df['support'].apply(lambda x: f"{int(x)}" if x != "" else "")
-    
-    st.write("### Hasil Evaluasi Model Terbaik")
-    st.table(df)
+    st.markdown("### Hasil Evaluasi Model Terbaik")
+    st.code("""
+                    precision  recall  f1-score   support
+negatif       0.88      0.96      0.92       127
+positif       0.96      0.87      0.91       127
+
+accuracy                          0.92       254
+macro avg     0.92      0.92      0.92       254
+weighted avg  0.92      0.92      0.92       254
+""", language="text")
 
     example_images = [
         ("Confusion Matrix", "confusion_matrix.png"),
@@ -234,9 +275,3 @@ elif page == "📑 Dokumentasi":
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
-
-
-
-
-
-
