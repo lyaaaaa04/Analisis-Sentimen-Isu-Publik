@@ -92,6 +92,15 @@ body, div, p, span, label { font-family: 'Poppins', sans-serif !important; font-
   box-shadow:0 8px 20px rgba(0,0,0,0.1);
   border-top:6px solid #2a5298;
 }
+textarea {
+    font-size: 22px !important;
+    font-weight: 600;
+    color: #1e3c72;
+    background-color: #f9f9ff;
+    border-radius: 14px;
+    border: 2px solid #2a5298;
+    padding: 20px;
+}
 .sentiment-card.positive {border-color: #4caf50;}
 .sentiment-card.negative {border-color: #f44336;}
 .icon-badge { font-size: 5rem !important; margin-bottom:20px; }
@@ -275,3 +284,4 @@ weighted avg  0.92      0.92      0.92       254
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
