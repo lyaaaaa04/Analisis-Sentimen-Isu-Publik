@@ -93,7 +93,7 @@ body, div, p, span, label { font-family: 'Poppins', sans-serif !important; font-
   border-top:6px solid #2a5298;
 }
 textarea {
-    font-size: 22px !important;
+    font-size: 28px !important;
     font-weight: 600;
     color: #1e3c72;
     background-color: #f9f9ff;
@@ -284,4 +284,5 @@ weighted avg  0.92      0.92      0.92       254
                 st.write(f"File {path} ada tapi gagal dibuka.")
         else:
             st.write(f"{title}: (file `{path}` tidak ditemukan)")
+
 
